@@ -1,0 +1,21 @@
+Améliorations générales
+Validation des données utilisateur :
+
+Ajoutez une validation pour vérifier que les entrées (dates, CIN, matricule, etc.) sont conformes à un format prédéfini.
+Gestion des erreurs :
+
+Centralisez les messages d'erreur dans une fonction pour réduire les répétitions.
+Par exemple, remplacez printf par une fonction comme afficher_erreur(char* message).
+Amélioration de la lisibilité et des performances :
+
+Utilisez des structures ou des fonctions dédiées pour éviter le code redondant.
+Par exemple, ajoutez une fonction verifier_date_valide qui encapsule la validation de date.
+Utilisation de constantes ou de macros pour les formats :
+
+Par exemple, définissez une macro pour le format de date JJ/MM/AAAA.
+Séparation des responsabilités :
+
+Divisez les longues fonctions (comme ajouter_location) en sous-fonctions plus petites, comme :
+verifier_existence_client
+verifier_existence_voiture
+calculer_montant_location
