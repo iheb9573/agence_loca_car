@@ -50,18 +50,16 @@ void display_amount_in_words(float amount);
 
 int main() {
 	
-	// testes unitaires 
+	//testes unitaires 
+	const int jours=5;
 	
-	
-	
-	
-	// fin test unitaires 
+	//
     Voiture voitures[MAX_VOITURES];
     Client clients[MAX_CLIENTS];
     Location locations[MAX_LOCATIONS];
     int nb_voitures = 0, nb_clients = 0, nb_locations = 0;
 
-    // Charger les donn?es depuis les fichiers
+    // Charger les données depuis les fichiers
     charger_voitures(voitures, &nb_voitures);
     charger_clients(clients, &nb_clients);
     charger_locations(locations, &nb_locations);
@@ -106,7 +104,7 @@ int main() {
         }
     } while (choix != 7);
 
-    // Sauvegarder les donn?es dans les fichiers
+    // Sauvegarder les données dans les fichiers
     sauvegarder_voitures(voitures, nb_voitures);
     sauvegarder_clients(clients, nb_clients);
     sauvegarder_locations(locations, nb_locations);
@@ -132,18 +130,18 @@ void ajouter_voiture(Voiture* voitures, int* nb_voitures) {
 }
 
 void ajouter_client(Client* clients, int* nb_clients) {
-    if (*nb_clients >= MAX_CLIENTS) {
+ if (*nb_clients >= MAX_CLIENTS) {
         printf("Limite de clients atteinte.\n");
         return;
     }
     Client* c = &clients[*nb_clients];
     printf("Entrer CIN: ");
     scanf("%s", c->cin);
-    printf("Entrer pr?nom et nom: ");
+    printf("Entrer prénom et nom: ");
     scanf(" %[^\n]", c->prenom_nom);
     printf("Entrer adresse: ");
     scanf(" %[^\n]", c->adresse);
-    printf("Entrer t?l?phone: ");
+    printf("Entrer téléphone: ");
     scanf("%s", c->telephone);
     (*nb_clients)++;
 }
@@ -221,7 +219,7 @@ void afficher_voitures(Voiture* voitures, int nb_voitures) {
 void afficher_clients(Client* clients, int nb_clients) {
     printf("Liste des clients:\n");
     for (int i = 0; i < nb_clients; i++) {
-        printf("CIN: %s, Nom: %s, Adresse: %s, T?l?phone: %s\n",
+        printf("CIN: %s, Nom: %s, Adresse: %s, Téléphone: %s\n",
                clients[i].cin, clients[i].prenom_nom, clients[i].adresse, clients[i].telephone);
     }
 }
@@ -231,7 +229,7 @@ void afficher_locations(Location* locations, int nb_locations) {
     for (int i = 0; i < nb_locations; i++) {
         printf("ID Location: %d, ID Voiture: %s, ID Client: %s, Date Sortie: %s, Date Retour: %s, Montant: %.2f\n",
                locations[i].id_location, locations[i].id_voiture, locations[i].id_client,
-               locations[i].date_sortie, locations[i]. date_retour, locations[i].montant);
+               locations[i].date_sortie, locations[i].date_retour, locations[i].montant);
     }
 }
 
@@ -298,10 +296,6 @@ void charger_locations(Location* locations, int* nb_locations) {
     }
 }
 
-
-//************************cette fonction return une bug ****************************************
-
-//fin de Fonction pour valider le format de la date
 int validate_date_format(const char* date) {
     int jour, mois, annee;
     if (sscanf(date, "%d/%d/%d", &jour, &mois, &annee) != 3) {
@@ -313,7 +307,6 @@ int validate_date_format(const char* date) {
     return 1;
 }
 
-// Fonction pour calculer le nombre de jours entre deux dates
 int get_number_of_days(char* date_sortie, char* date_retour) {
     struct tm tm_sortie = {0};
     struct tm tm_retour = {0};
@@ -337,10 +330,6 @@ int get_number_of_days(char* date_sortie, char* date_retour) {
     tm_retour.tm_year -= 1900;
     tm_retour.tm_hour = 12;
 
-    // Debug : Afficher les dates pour validation
-    printf("Date sortie : %02d/%02d/%04d\n", tm_sortie.tm_mday, tm_sortie.tm_mon + 1, tm_sortie.tm_year + 1900);
-    printf("Date retour : %02d/%02d/%04d\n", tm_retour.tm_mday, tm_retour.tm_mon + 1, tm_retour.tm_year + 1900);
-
     // Conversion avec mktime
     time_sortie = mktime(&tm_sortie);
     time_retour = mktime(&tm_retour);
@@ -350,6 +339,7 @@ int get_number_of_days(char* date_sortie, char* date_retour) {
         return -1;
     }
 
+    // Vérification que la date de retour est après la date de sortie
     if (difftime(time_retour, time_sortie) < 0) {
         printf("La date de retour doit être après la date de sortie.\n");
         return -1;
@@ -359,9 +349,6 @@ int get_number_of_days(char* date_sortie, char* date_retour) {
     int jours = (int)(difftime(time_retour, time_sortie) / (24 * 3600));
     return jours;
 }
-
-// fin de Fonction pour calculer le nombre de jours entre deux dates
-
 
 void convert_number_to_words(int n, char* words) {
     const char* units[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"};
@@ -379,7 +366,6 @@ void convert_number_to_words(int n, char* words) {
             sprintf(words, "%s et %s", tens[ten], units[unit]);
         } else {
             sprintf(words, "%s%s%s", tens[ten], (unit == 0 ? "" : (ten == 7 || ten == 9 ? "-" : " ")), units[unit]);
-
         }
     }
 }
@@ -390,7 +376,7 @@ void display_amount_in_words(float amount) {
     char words[100] = "";
 
     if (whole_part == 0) {
-        strcpy(words, "z?ro");
+        strcpy(words, "zéro");
     } else {
         convert_number_to_words(whole_part, words);
     }
@@ -398,9 +384,8 @@ void display_amount_in_words(float amount) {
     if (decimal_part > 0) {
         char decimal_words[20];
         convert_number_to_words(decimal_part, decimal_words);
-        printf("Montant ? payer: %s euros et %s centimes\n", words, decimal_words);
+        printf("Montant à payer: %s euros et %s centimes\n", words, decimal_words);
     } else {
-        printf("Montant ? payer: %s euros\n", words);
+        printf("Montant à payer: %s euros\n", words);
     }
 }
-

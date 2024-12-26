@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <ctype.h>
 
 #define MAX_VOITURES 100
 #define MAX_CLIENTS 100
@@ -19,7 +17,7 @@ typedef struct Client {
     char cin[10];
     char prenom_nom[25];
     char adresse[30];
-    char telephone[9];
+    char telephone[8];
 } Client;
 
 typedef struct Location {
@@ -30,6 +28,8 @@ typedef struct Location {
     char date_retour[10];
     float montant;
 } Location;
+
+
 
 // Prototypes de fonctions
 void ajouter_voiture(Voiture* voitures, int* nb_voitures);
@@ -44,24 +44,15 @@ void sauvegarder_locations(Location* locations, int nb_locations);
 void charger_voitures(Voiture* voitures, int* nb_voitures);
 void charger_clients(Client* clients, int* nb_clients);
 void charger_locations(Location* locations, int* nb_locations);
-int get_number_of_days(char* date_sortie, char* date_retour);
-void convert_number_to_words(int n, char* words);
-void display_amount_in_words(float amount);
+int date_difference(char* date1, char* date2);
 
 int main() {
-	
-	// testes unitaires 
-	
-	
-	
-	
-	// fin test unitaires 
     Voiture voitures[MAX_VOITURES];
     Client clients[MAX_CLIENTS];
     Location locations[MAX_LOCATIONS];
     int nb_voitures = 0, nb_clients = 0, nb_locations = 0;
 
-    // Charger les donn?es depuis les fichiers
+    // Charger les données depuis les fichiers
     charger_voitures(voitures, &nb_voitures);
     charger_clients(clients, &nb_clients);
     charger_locations(locations, &nb_locations);
@@ -106,7 +97,7 @@ int main() {
         }
     } while (choix != 7);
 
-    // Sauvegarder les donn?es dans les fichiers
+    // Sauvegarder les données dans les fichiers
     sauvegarder_voitures(voitures, nb_voitures);
     sauvegarder_clients(clients, nb_clients);
     sauvegarder_locations(locations, nb_locations);
@@ -126,7 +117,7 @@ void ajouter_voiture(Voiture* voitures, int* nb_voitures) {
     scanf("%s", v->marque);
     printf("Entrer prix de location: ");
     scanf("%f", &v->prixlocation);
-    printf("Entrer date de fin d'assurance : ");
+    printf("Entrer date de fin d'assurance: ");
     scanf("%s", v->datefinassurance);
     (*nb_voitures)++;
 }
@@ -139,11 +130,11 @@ void ajouter_client(Client* clients, int* nb_clients) {
     Client* c = &clients[*nb_clients];
     printf("Entrer CIN: ");
     scanf("%s", c->cin);
-    printf("Entrer pr?nom et nom: ");
-    scanf(" %[^\n]", c->prenom_nom);
+    printf("Entrer prénom et nom: ");
+    scanf("%s", c->prenom_nom);
     printf("Entrer adresse: ");
-    scanf(" %[^\n]", c->adresse);
-    printf("Entrer t?l?phone: ");
+    scanf("%s", c->adresse);
+    printf("Entrer téléphone: ");
     scanf("%s", c->telephone);
     (*nb_clients)++;
 }
@@ -153,61 +144,64 @@ void ajouter_location(Location* locations, int* nb_locations, Voiture* voitures,
         printf("Limite de locations atteinte.\n");
         return;
     }
+    
     Location* l = &locations[*nb_locations];
+    char cin_client[10], matricule_voiture[10];
+    int client_found = 0, voiture_found = 0;
+
     printf("Entrer identifiant de location: ");
     scanf("%d", &l->id_location);
-    char cin[10], matricule[10];
-    printf("Entrer CIN du client: ");
-    scanf("%s", cin);
-    printf("Entrer matricule de la voiture: ");
-    scanf("%s", matricule);
-
-    // Vérification de l'existence du client et de la voiture
-    int client_found = 0, voiture_found = 0;
-    for (int i = 0; i < nb_clients; i++) {
-        if (strcmp(clients[i].cin, cin) == 0) {
-            client_found = 1;
-            break;
-        }
-    }
-    for (int i = 0; i < nb_voitures; i++) {
-        if (strcmp(voitures[i].matricule, matricule) == 0) {
-            voiture_found = 1;
-            break;
-        }
-    }
-    if (!client_found) {
-        printf("Client non trouvé.\n");
-        return;
-    }
-    if (!voiture_found) {
-        printf("Voiture non trouvée.\n");
-        return;
-    }
-    strcpy(l->id_client, cin);
-    strcpy(l->id_voiture, matricule);
+    printf("Entrer identifiant de voiture: ");
+    scanf("%s", matricule_voiture);
+    printf("Entrer identifiant de client: ");
+    scanf("%s", cin_client);
     printf("Entrer date de sortie (JJ/MM/AAAA): ");
     scanf("%s", l->date_sortie);
     printf("Entrer date de retour (JJ/MM/AAAA): ");
     scanf("%s", l->date_retour);
 
-    // Calculer le nombre de jours de location
-    int days = get_number_of_days(l->date_sortie, l->date_retour);
-    if (days < 0) {
-        printf("Date de retour invalide.\n");
+    // Vérification de l'existence du client
+    for (int i = 0; i < nb_clients; i++) {
+        if (strcmp(clients[i].cin, cin_client) == 0) {
+            client_found = 1;
+            break;
+        }
+    }
+
+    // Vérification de l'existence de la voiture
+    for (int i = 0; i < nb_voitures; i++) {
+        if (strcmp(voitures[i].matricule, matricule_voiture) == 0) {
+            voiture_found = 1;
+            break;
+        }
+    }
+
+    if (!client_found) {
+        printf("Erreur: CIN du client introuvable.\n");
+        return;
+    }
+    if (!voiture_found) {
+        printf("Erreur: Matricule de voiture introuvable.\n");
         return;
     }
 
-    // Calculer le montant
+    // Calcul du montant
+    long days = date_difference(l->date_sortie, l->date_retour);
+    if (days < 0) {
+        printf("Erreur: La date de retour doit être après la date de sortie.\n");
+        return;
+    }
+
+    // Trouver le prix de location par jour
     for (int i = 0; i < nb_voitures; i++) {
-        if (strcmp(voitures[i].matricule, matricule) == 0) {
+        if (strcmp(voitures[i].matricule, matricule_voiture) == 0) {
             l->montant = days * voitures[i].prixlocation;
             break;
         }
     }
-    printf("Montant à payer: %.2f\n", l->montant);
-    display_amount_in_words(l->montant);
+
     (*nb_locations)++;
+    printf("Location ajoutée avec succès! Montant total: %.2f\n", l->montant);
 }
 
 void afficher_voitures(Voiture* voitures, int nb_voitures) {
@@ -221,7 +215,7 @@ void afficher_voitures(Voiture* voitures, int nb_voitures) {
 void afficher_clients(Client* clients, int nb_clients) {
     printf("Liste des clients:\n");
     for (int i = 0; i < nb_clients; i++) {
-        printf("CIN: %s, Nom: %s, Adresse: %s, T?l?phone: %s\n",
+        printf("CIN: %s, Nom: %s, Adresse: %s, Téléphone: %s\n",
                clients[i].cin, clients[i].prenom_nom, clients[i].adresse, clients[i].telephone);
     }
 }
@@ -231,7 +225,7 @@ void afficher_locations(Location* locations, int nb_locations) {
     for (int i = 0; i < nb_locations; i++) {
         printf("ID Location: %d, ID Voiture: %s, ID Client: %s, Date Sortie: %s, Date Retour: %s, Montant: %.2f\n",
                locations[i].id_location, locations[i].id_voiture, locations[i].id_client,
-               locations[i].date_sortie, locations[i]. date_retour, locations[i].montant);
+               locations[i].date_sortie, locations[i].date_retour, locations[i].montant);
     }
 }
 
@@ -297,110 +291,31 @@ void charger_locations(Location* locations, int* nb_locations) {
         fclose(file);
     }
 }
+// Fonction pour vérifier si une année est bissextile
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+// Fonction pour calculer la différence en jours entre deux dates
+int date_difference(char* date1, char* date2) {
+    int jour1, mois1, annee1;
+    int jour2, mois2, annee2;
 
+    sscanf(date1, "%d/%d/%d", &jour1, &mois1, &annee1);
+    sscanf(date2, "%d/%d/%d", &jour2, &mois2, &annee2);
 
-//************************cette fonction return une bug ****************************************
-
-//fin de Fonction pour valider le format de la date
-int validate_date_format(const char* date) {
-    int jour, mois, annee;
-    if (sscanf(date, "%d/%d/%d", &jour, &mois, &annee) != 3) {
-        return 0;
+    // Calculer le nombre de jours pour la première date
+    int total_jours1 = annee1 * 365 + jour1;
+    for (int i = 0; i < mois1 - 1; i++) {
+        total_jours1 += (i == 1) ? (isLeapYear(annee1) ? 29 : 28) : (31 - (i % 7 % 2));
     }
-    if (jour < 1 || jour > 31 || mois < 1 || mois > 12 || annee < 1900) {
-        return 0;
+
+    // Calculer le nombre de jours pour la deuxième date
+    int total_jours2 = annee2 * 365 + jour2;
+    for (int i = 0; i < mois2 - 1; i++) {
+        total_jours2 += (i == 1) ? (isLeapYear(annee2) ? 29 : 28) : (31 - (i % 7 % 2));
     }
-    return 1;
+
+    return total_jours2 - total_jours1;
 }
 
-// Fonction pour calculer le nombre de jours entre deux dates
-int get_number_of_days(char* date_sortie, char* date_retour) {
-    struct tm tm_sortie = {0};
-    struct tm tm_retour = {0};
-    time_t time_sortie, time_retour;
-
-    // Validation préalable du format des dates
-    if (!validate_date_format(date_sortie) || !validate_date_format(date_retour)) {
-        printf("Format de date invalide. Utilisez JJ/MM/AAAA.\n");
-        return -1;
-    }
-
-    // Lecture des dates
-    sscanf(date_sortie, "%d/%d/%d", &tm_sortie.tm_mday, &tm_sortie.tm_mon, &tm_sortie.tm_year);
-    sscanf(date_retour, "%d/%d/%d", &tm_retour.tm_mday, &tm_retour.tm_mon, &tm_retour.tm_year);
-
-    // Ajustement pour struct tm
-    tm_sortie.tm_mon -= 1; // Mois de 0 à 11
-    tm_sortie.tm_year -= 1900; // Années depuis 1900
-    tm_sortie.tm_hour = 12; // Évite les problèmes liés à l'heure
-    tm_retour.tm_mon -= 1;
-    tm_retour.tm_year -= 1900;
-    tm_retour.tm_hour = 12;
-
-    // Debug : Afficher les dates pour validation
-    printf("Date sortie : %02d/%02d/%04d\n", tm_sortie.tm_mday, tm_sortie.tm_mon + 1, tm_sortie.tm_year + 1900);
-    printf("Date retour : %02d/%02d/%04d\n", tm_retour.tm_mday, tm_retour.tm_mon + 1, tm_retour.tm_year + 1900);
-
-    // Conversion avec mktime
-    time_sortie = mktime(&tm_sortie);
-    time_retour = mktime(&tm_retour);
-
-    if (time_sortie == -1 || time_retour == -1) {
-        printf("Erreur lors de la conversion des dates avec mktime.\n");
-        return -1;
-    }
-
-    if (difftime(time_retour, time_sortie) < 0) {
-        printf("La date de retour doit être après la date de sortie.\n");
-        return -1;
-    }
-
-    // Calcul du nombre de jours
-    int jours = (int)(difftime(time_retour, time_sortie) / (24 * 3600));
-    return jours;
-}
-
-// fin de Fonction pour calculer le nombre de jours entre deux dates
-
-
-void convert_number_to_words(int n, char* words) {
-    const char* units[] = {"", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"};
-    const char* teens[] = {"dix", "onze", "douze", "treize", "quatorze", "quinze", "seize"};
-    const char* tens[] = {"", "", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante-dix", "quatre-vingt", "quatre-vingt-dix"};
-
-    if (n < 10) {
-        strcpy(words, units[n]);
-    } else if (n < 20) {
-        strcpy(words, teens[n - 10]);
-    } else {
-        int unit = n % 10;
-        int ten = n / 10;
-        if (ten == 8 && unit > 0) {
-            sprintf(words, "%s et %s", tens[ten], units[unit]);
-        } else {
-            sprintf(words, "%s%s%s", tens[ten], (unit == 0 ? "" : (ten == 7 || ten == 9 ? "-" : " ")), units[unit]);
-
-        }
-    }
-}
-
-void display_amount_in_words(float amount) {
-    int whole_part = (int)amount;
-    int decimal_part = (int)((amount - whole_part) * 100);
-    char words[100] = "";
-
-    if (whole_part == 0) {
-        strcpy(words, "z?ro");
-    } else {
-        convert_number_to_words(whole_part, words);
-    }
-
-    if (decimal_part > 0) {
-        char decimal_words[20];
-        convert_number_to_words(decimal_part, decimal_words);
-        printf("Montant ? payer: %s euros et %s centimes\n", words, decimal_words);
-    } else {
-        printf("Montant ? payer: %s euros\n", words);
-    }
-}
 
