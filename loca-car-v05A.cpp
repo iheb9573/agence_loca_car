@@ -52,6 +52,7 @@ void rechercher_voiture(Voiture* voitures, int nb_voitures, const char* matricul
 void rechercher_client(Client* clients, int nb_clients, const char* cin);
 void menu_gestion_voitures(Voiture* voitures, int* nb_voitures);
 void menu_gestion_clients(Client* clients, int* nb_clients);
+void menu_gestion_locations(Voiture* voitures, int nb_voitures, Location* locations, int nb_locations, Client* clients, int nb_clients);
 void liste_voitures_disponibles(Voiture* voitures, int nb_voitures, Location* locations, int nb_locations);
 void liste_voitures_loyees(Voiture* voitures, int nb_voitures, Location* locations, int nb_locations);
 float calculer_recette(Location* locations, int nb_locations);
@@ -97,6 +98,7 @@ void gest_cli_aff();
 void gest_cli_mod();
 void gest_cli_sup();
 void gest_cli_cher();
+void Menu_Gest_locations();
 //*********************************************
 void animation() {
     int x;
@@ -136,12 +138,13 @@ void animation() {
 int main() {
 	
 	
-	animation();
+	//animation();
 	
     Voiture voitures[MAX_VOITURES];
     Client clients[MAX_CLIENTS];
     Location locations[MAX_LOCATIONS];
     int nb_voitures = 0, nb_clients = 0, nb_locations = 0;
+    
 
     // Charger les donnees depuis les fichiers
     charger_voitures(voitures, &nb_voitures);
@@ -150,13 +153,6 @@ int main() {
 
     int choix;
     do {
-//        printf("\nMenu:\n");
-//        printf("1. Gestion des voitures\n");
-//		printf("2. Gestion des clients\n");
-//		printf("3. Ajouter une location\n");
-//		printf("4. Afficher les locations\n");
-//		printf("5. Quitter\n");
-//        printf("Choisissez une option: ");
 		Menu_princ();
         scanf("%d", &choix);
 
@@ -168,12 +164,9 @@ int main() {
                 menu_gestion_clients(clients, &nb_clients);
                 break;
             case 3:
-                ajouter_location(locations, &nb_locations, voitures, nb_voitures, clients, nb_clients);
+                menu_gestion_locations(voitures, nb_voitures, locations, nb_locations, clients, nb_clients);
                 break;
             case 4:
-                afficher_locations(locations, nb_locations);
-                break;
-            case 5:
             	Final_animation();
                 printf("\t\t\t\t\t\t 3awnina madame \n");
                 sleep(5);
@@ -181,7 +174,7 @@ int main() {
             default:
                 printf("Choix invalide!\n");
         }
-    } while (choix != 5);
+    } while (choix != 4);
 
     // Sauvegarder les donnees dans les fichiers
     sauvegarder_voitures(voitures, nb_voitures);
@@ -474,14 +467,6 @@ void sauvegarder_locations(Location* locations, int nb_locations) {
 void menu_gestion_voitures(Voiture* voitures, int* nb_voitures) {
     int choix;
     do {
-//        printf("\nGestion des voitures:\n");
-//        printf("1. Ajouter une voiture\n");
-//        printf("2. Afficher les voitures\n");
-//        printf("3. Supprimer une voiture\n");
-//        printf("4. Modifier une voiture\n");
-//        printf("5. Rechercher une voiture\n");
-//        printf("6. Retour au menu principal\n");
-//        printf("Choisissez une option: ");
 		Menu_Gest_voiture();
         scanf("%d", &choix);
 
@@ -531,14 +516,6 @@ void menu_gestion_voitures(Voiture* voitures, int* nb_voitures) {
 void menu_gestion_clients(Client* clients, int* nb_clients) {
     int choix;
     do {
-//        printf("\nGestion des clients:\n");
-//        printf("1. Ajouter un client\n");
-//        printf("2. Afficher les clients\n");
-//        printf("3. Supprimer un client\n");
-//        printf("4. Modifier un client\n");
-//        printf("5. Rechercher un client\n");
-//        printf("6. Retour au menu principal\n");
-//        printf("Choisissez une option: ");
 		Menu_Gest_client();
         scanf("%d", &choix);
 
@@ -586,6 +563,40 @@ void menu_gestion_clients(Client* clients, int* nb_clients) {
         }
     } while (choix != 6);
 }
+void menu_gestion_locations (Voiture* voitures, int nb_voitures, Location* locations, int nb_locations, Client* clients, int nb_clients) {
+    int choix;
+    do {
+		Menu_Gest_locations();
+        scanf("%d", &choix);
+
+        switch (choix) {
+            case 1:
+            	//gest_loc_ajou();
+                ajouter_location(locations, &nb_locations, voitures, nb_voitures, clients, nb_clients);
+                break;
+            case 2:
+            	//gest_loc_aff();
+                afficher_locations(locations, nb_locations);
+                break;
+            case 3:
+                liste_voitures_disponibles(voitures, nb_voitures, locations, nb_locations);
+                break;
+            case 4:
+                liste_voitures_loyees(voitures, nb_voitures, locations, nb_locations);
+                break;
+            case 5:
+            	printf("\n\t\t**************************************************\n");
+                printf("\n\t\t\tRecette totale: %.2f\n", calculer_recette(locations, nb_locations));
+                printf("\n\t\t**************************************************\n");
+                break;
+            case 6:
+                printf("\t\tRetour au menu principal.\n");
+                break;
+            default:
+                printf("\t\tChoix invalide!\n");
+        }
+    } while (choix != 6);
+}
 void Menu_princ()
 {    
 	system("color a");
@@ -609,11 +620,9 @@ void Menu_princ()
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c  2  %c %c%c  Gestion des clients     %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
-    printf("          \n                  \xba %c  3  %c %c%c  Ajouter une location    %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  3  %c %c%c  Gestion des locations   %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
-    printf("          \n                  \xba %c  4  %c %c%c  Afficher les locations  %c%c \xba",219,219,219,219,219,219);
-    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
-    printf("          \n                  \xba %c  5  %c %c%c         Retour           %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  4  %c %c%c         Retour           %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
     printf("         \n                  \xba %c%c%c%c%c%c%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,220,220,220,220,220,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219);
    	printf("        \n                  \xc8\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbc ");
@@ -661,6 +670,30 @@ void Menu_Gest_client(){
     printf("          \n                  \xba %c  4  %c %c%c  Modifier un client      %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c  5  %c %c%c  Rechercher unclient     %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  6  %c %c%c Retour au menu principal %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("         \n                  \xba %c%c%c%c%c%c%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,220,220,220,220,220,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219);
+   	printf("        \n                  \xc8\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbc ");
+	printf("          \n\t          \xba %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,219);
+    printf("          \n\t          \xba %c          %c%c%c%c%c%c DONNES VOTRE CHOIX :         %c \xba",219,175,175,175,175,175,175,219);
+	printf("          \n\t          \xba %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,219);
+	printf("        \n                  \xc8\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbc ");
+	printf("\n");
+}
+void Menu_Gest_locations(){
+	printf("        \n                  \xc9\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbb ");
+	printf("          \n                  \xba %c%c%c%c%c%c%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,223,223,223,223,223,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  1  %c %c%c  Ajouter une location    %c%c \xba",219,219,219,219,219,219); 
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  2  %c %c%c  Afficher les locations  %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  3  %c %c%c  Liste voitures dispo    %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  4  %c %c%c  Liste voitures loyees   %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
+    printf("          \n                  \xba %c  5  %c %c%c   *  Recette totale *    %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c  6  %c %c%c Retour au menu principal %c%c \xba",219,219,219,219,219,219);
     printf("          \n                  \xba %c     %c %c%c                          %c%c \xba",219,219,219,219,219,219);
@@ -791,7 +824,7 @@ void gest_voi_ajou()
 {	
 	printf("          \n       \xc9\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbb ");
 	printf("\n       \xba %c%c%c%c%c%c%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,223,223,223,223,223,219,219,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,223,219,219,223,223,223,223,223,223,223,223,223,223,223,223,223,223,219);
-	printf("\n       \xba %c  1  %c %c     GESTION DES VOITURES      %c  %c   Ajouter     %c \xba",219,219,219,219,219,219);
+	printf("\n       \xba %c  1  %c %c     GESTION DES VOITURES      %c  %c   Ajouter   %c \xba",219,219,219,219,219,219);
 	printf("\n       \xba %c%c%c%c%c%c%c %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c \xba",219,220,220,220,220,220,219,219,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,220,219,219,220,220,220,220,220,220,220,220,220,220,220,220,220,220,219);
    	printf("          \n       \xc8\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbc");
 	printf("\n");
@@ -884,10 +917,10 @@ void liste_voitures_disponibles(Voiture* voitures, int nb_voitures, Location* lo
         return;
     }
 
-    printf("Liste des voitures disponibles:\n");
-    printf("-------------------------------------------------\n");
-    printf("Matricule    Marque       Prix      Assurance\n");
-    printf("-------------------------------------------------\n");
+    printf("\t\tListe des voitures disponibles:\n");
+    printf("\t\t--------------------------------------------------\n");
+    printf("\t\t| Matricule | Marque       | Prix    | Assurance  |\n");
+    printf("\t\t--------------------------------------------------\n");
 
     for (int i = 0; i < nb_voitures; i++) {
         int est_louee = 0;
@@ -898,12 +931,12 @@ void liste_voitures_disponibles(Voiture* voitures, int nb_voitures, Location* lo
             }
         }
         if (!est_louee) {
-            printf("%-11s %-12s %-9.2f %-10s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
+            printf("\t\t%-11s %-12s %-9.2f %-10s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
             fprintf(file, "%s %s %.2f %s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
         }
     }
 
-    printf("-------------------------------------------------\n");
+    printf("\t\t--------------------------------------------------\n");
     fclose(file);
 }
 void liste_voitures_loyees(Voiture* voitures, int nb_voitures, Location* locations, int nb_locations) {
@@ -913,10 +946,11 @@ void liste_voitures_loyees(Voiture* voitures, int nb_voitures, Location* locatio
         return;
     }
 
-    printf("Liste des voitures louées:\n");
-    printf("-------------------------------------------------\n");
-    printf("Matricule    Marque       Prix      Assurance\n");
-    printf("-------------------------------------------------\n");
+    
+    printf("\t\tListe des voitures louees:\n");
+    printf("\t\t--------------------------------------------------\n");
+    printf("\t\t| Matricule | Marque       | Prix    | Assurance  |\n");
+    printf("\t\t--------------------------------------------------\n");
 
     for (int i = 0; i < nb_voitures; i++) {
         int est_louee = 0;
@@ -927,12 +961,12 @@ void liste_voitures_loyees(Voiture* voitures, int nb_voitures, Location* locatio
             }
         }
         if (est_louee) {
-            printf("%-11s %-12s %-9.2f %-10s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
+            printf("\t\t%-11s %-12s %-9.2f %-10s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
             fprintf(file, "%s %s %.2f %s\n", voitures[i].matricule, voitures[i].marque, voitures[i].prixlocation, voitures[i].datefinassurance);
         }
     }
 
-    printf("-------------------------------------------------\n");
+    printf("\t\t--------------------------------------------------\n");
     fclose(file);
 }
 float calculer_recette(Location* locations, int nb_locations) {
@@ -942,6 +976,7 @@ float calculer_recette(Location* locations, int nb_locations) {
     }
     return recette_totale;
 }
+
 
 
 
